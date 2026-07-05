@@ -1,17 +1,18 @@
-# День 1: базовый асинхронный HTTP-клиент
+# Day 1: Basic Asynchronous HTTP Client
 
-Минимальная реализация первого дня задания: класс `AsyncCrawler` загружает страницы через `aiohttp.ClientSession`, ограничивает конкурентность, использует connection pooling, обрабатывает сетевые ошибки, HTTP-ошибки и таймауты.
+This project contains the Day 1 implementation of an asynchronous web crawler assignment. The `AsyncCrawler` class downloads web pages with `aiohttp.ClientSession`, limits concurrency, uses connection pooling, and handles network errors, HTTP errors, and timeouts without crashing the program.
 
-## Возможности
+## Features
 
-- `AsyncCrawler(max_concurrent=10)` с ограничением конкурентности;
-- `fetch_url(url)` для загрузки одной страницы;
-- `fetch_urls(urls)` для параллельной загрузки списка URL;
-- общий `aiohttp.ClientSession` с `connect` и `sock_read` timeout;
-- корректное закрытие через `close()`;
-- базовое логирование начала, успеха и ошибок.
+- `AsyncCrawler(max_concurrent=10)` with a configurable concurrency limit;
+- `fetch_url(url)` for downloading a single page;
+- `fetch_urls(urls)` for downloading multiple URLs in parallel;
+- shared `aiohttp.ClientSession` with `connect` and `sock_read` timeouts;
+- connection pooling through `aiohttp.TCPConnector`;
+- explicit cleanup through `close()`;
+- basic logging for request start, success, and errors.
 
-## Установка
+## Installation
 
 ```powershell
 python -m venv .venv
@@ -19,7 +20,7 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-## Пример использования
+## Usage Example
 
 ```python
 import asyncio
@@ -34,18 +35,21 @@ async def main():
     ]
     results = await crawler.fetch_urls(urls)
     await crawler.close()
-    print(f"Загружено {sum(bool(page) for page in results.values())} страниц")
+    loaded_pages = sum(bool(page) for page in results.values())
+    print(f"Loaded {loaded_pages} pages")
 
 asyncio.run(main())
 ```
 
-## Демонстрация
+## Demo
 
 ```powershell
 python examples/day1_demo.py
 ```
 
-## Проверки
+The demo downloads several URLs sequentially and in parallel, prints the status for each request, and compares the total execution time.
+
+## Checks
 
 ```powershell
 ruff check .
