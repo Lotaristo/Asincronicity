@@ -1,16 +1,20 @@
-# Day 1: Basic Asynchronous HTTP Client
+# Day 2: HTML Parsing and Data Extraction
 
-This project contains the Day 1 implementation of an asynchronous web crawler assignment. The `AsyncCrawler` class downloads web pages with `aiohttp.ClientSession`, limits concurrency, uses connection pooling, and handles network errors, HTTP errors, and timeouts without crashing the program.
+This project contains the Day 2 implementation of an asynchronous web crawler assignment. `AsyncCrawler` downloads pages with `aiohttp`, and `HTMLParser` extracts structured data from HTML with BeautifulSoup and lxml.
 
 ## Features
 
-- `AsyncCrawler(max_concurrent=10)` with a configurable concurrency limit;
-- `fetch_url(url)` for downloading a single page;
-- `fetch_urls(urls)` for downloading multiple URLs in parallel;
-- shared `aiohttp.ClientSession` with `connect` and `sock_read` timeouts;
-- connection pooling through `aiohttp.TCPConnector`;
-- explicit cleanup through `close()`;
-- basic logging for request start, success, and errors.
+- asynchronous HTTP downloads with `AsyncCrawler`;
+- concurrent URL fetching with a configurable concurrency limit;
+- shared `aiohttp.ClientSession` with connection pooling and timeouts;
+- `fetch_and_parse(url)` for downloading and parsing a page in one call;
+- metadata extraction for title, description, and keywords;
+- text extraction for the full page or a CSS selector;
+- absolute URL extraction from relative links;
+- image extraction with `src` and `alt`;
+- heading extraction for `h1`, `h2`, and `h3`;
+- table and list extraction;
+- parser warnings with partial results on parsing errors.
 
 ## Installation
 
@@ -28,15 +32,18 @@ from async_crawler import AsyncCrawler
 
 async def main():
     crawler = AsyncCrawler(max_concurrent=5)
-    urls = [
-        "https://example.com",
-        "https://httpbin.org/delay/1",
-        "https://httpbin.org/delay/2",
-    ]
-    results = await crawler.fetch_urls(urls)
-    await crawler.close()
-    loaded_pages = sum(bool(page) for page in results.values())
-    print(f"Loaded {loaded_pages} pages")
+    try:
+        result = await crawler.fetch_and_parse("https://example.com")
+    finally:
+        await crawler.close()
+
+    print({
+        "url": result["url"],
+        "title": result["title"],
+        "text_length": len(result["text"]),
+        "links_count": len(result["links"]),
+        "images_count": len(result["images"]),
+    })
 
 asyncio.run(main())
 ```
@@ -44,10 +51,10 @@ asyncio.run(main())
 ## Demo
 
 ```powershell
-python examples/day1_demo.py
+python examples/day2_demo.py
 ```
 
-The demo downloads several URLs sequentially and in parallel, prints the status for each request, and compares the total execution time.
+The demo downloads and parses several pages, then prints a compact summary with title, text length, links count, image count, and other extracted data counts.
 
 ## Checks
 

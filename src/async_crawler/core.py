@@ -5,11 +5,13 @@ import logging
 
 import aiohttp
 
+from async_crawler.html_parser import HTMLParser
+
 logger = logging.getLogger(__name__)
 
 
 class AsyncCrawler:
-    """Basic asynchronous HTTP client for Day 1 of the crawler assignment."""
+    """Basic asynchronous crawler with HTTP fetching and HTML parsing."""
 
     def __init__(
         self,
@@ -25,6 +27,7 @@ class AsyncCrawler:
         self._connector: aiohttp.TCPConnector | None = None
         self._session: aiohttp.ClientSession | None = None
         self._semaphore = asyncio.Semaphore(max_concurrent)
+        self._parser = HTMLParser()
 
     def _get_session(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
@@ -59,6 +62,11 @@ class AsyncCrawler:
         tasks = [asyncio.create_task(self.fetch_url(url)) for url in urls]
         contents = await asyncio.gather(*tasks)
         return dict(zip(urls, contents, strict=True))
+
+    async def fetch_and_parse(self, url: str) -> dict:
+        """Fetch a URL and return structured data extracted from the HTML."""
+        html = await self.fetch_url(url)
+        return await self._parser.parse_html(html, url)
 
     async def close(self) -> None:
         if self._session is not None:

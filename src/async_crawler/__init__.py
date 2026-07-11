@@ -1,6 +1,6 @@
-"""Day 1 asynchronous crawler package."""
+"""Asynchronous crawler package."""
 
 from async_crawler.core import AsyncCrawler
+from async_crawler.html_parser import HTMLParser
 
-__all__ = ["AsyncCrawler"]
-
+__all__ = ["AsyncCrawler", "HTMLParser"]
