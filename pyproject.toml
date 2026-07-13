@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "async-crawler-assignment"
 version = "0.1.0"
-description = "Day 2 asynchronous crawler with HTML parsing using asyncio and aiohttp."
+description = "Day 3 asynchronous crawler with queues, concurrency control, and HTML parsing."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

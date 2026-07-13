@@ -6,3 +6,4 @@ __pycache__/
 *.egg-info/
 results.jsonl
 results.db
+day3_results.json

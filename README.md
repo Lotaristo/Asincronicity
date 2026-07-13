@@ -1,6 +1,6 @@
-# Day 2: HTML Parsing and Data Extraction
+# Day 3: Concurrency Control and Queues
 
-This project contains the Day 2 implementation of an asynchronous web crawler assignment. `AsyncCrawler` downloads pages with `aiohttp`, and `HTMLParser` extracts structured data from HTML with BeautifulSoup and lxml.
+This project contains the Day 3 implementation of an asynchronous web crawler assignment. `AsyncCrawler` downloads pages with `aiohttp`, extracts structured data with `HTMLParser`, and coordinates crawling through a priority queue and global/per-domain semaphore limits.
 
 ## Features
 
@@ -14,7 +14,14 @@ This project contains the Day 2 implementation of an asynchronous web crawler as
 - image extraction with `src` and `alt`;
 - heading extraction for `h1`, `h2`, and `h3`;
 - table and list extraction;
-- parser warnings with partial results on parsing errors.
+- parser warnings with partial results on parsing errors;
+- `CrawlerQueue` with priority, processed, failed, active, and queued states;
+- `SemaphoreManager` with global and per-domain concurrency limits;
+- `crawl(start_urls, max_pages=100)` for breadth-style site traversal;
+- maximum crawl depth control;
+- URL filtering by same domain, exclude patterns, and include patterns;
+- crawl state through `visited_urls`, `failed_urls`, and `processed_urls`;
+- optional real-time progress output.
 
 ## Installation
 
@@ -31,19 +38,17 @@ import asyncio
 from async_crawler import AsyncCrawler
 
 async def main():
-    crawler = AsyncCrawler(max_concurrent=5)
+    crawler = AsyncCrawler(max_concurrent=10, max_depth=2)
     try:
-        result = await crawler.fetch_and_parse("https://example.com")
+        results = await crawler.crawl(
+            start_urls=["https://example.com"],
+            max_pages=50,
+            same_domain_only=True,
+        )
     finally:
         await crawler.close()
 
-    print({
-        "url": result["url"],
-        "title": result["title"],
-        "text_length": len(result["text"]),
-        "links_count": len(result["links"]),
-        "images_count": len(result["images"]),
-    })
+    print(f"Processed {len(results)} pages")
 
 asyncio.run(main())
 ```
@@ -51,10 +56,10 @@ asyncio.run(main())
 ## Demo
 
 ```powershell
-python examples/day2_demo.py
+python examples/day3_demo.py
 ```
 
-The demo downloads and parses several pages, then prints a compact summary with title, text length, links count, image count, and other extracted data counts.
+The demo starts from one or more URLs, crawls with a depth limit, prints progress in real time, and saves a JSON summary of extracted data.
 
 ## Checks
 
